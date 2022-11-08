@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "fyb:lib"
+
+    - path: "./app/Main.hs"
+      component: "fyb:exe:fyb-exe"
+
+    - path: "./app/Paths_fyb.hs"
+      component: "fyb:exe:fyb-exe"
+
+    - path: "./test"
+      component: "fyb:test:fyb-test"

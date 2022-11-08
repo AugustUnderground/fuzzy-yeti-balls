@@ -1,0 +1,82 @@
+name:                fyb
+version:             0.1.0.0
+github:              "augustunderground/fyb"
+license:             BSD3
+author:              "Yannick Uhlmann"
+maintainer:          "augustunderground@protonmail.com"
+copyright:           "2022 Yannick Uhlmann"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/augustunderground/fyb#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- directory
+- containers
+- lens
+- transformers
+- normaldistribution
+- random
+- text
+- vector-sized
+- singletons
+- deepseq
+- cassava
+- bytestring
+- mtl
+- pipes
+- pipes-concurrency
+- libtorch-ffi
+- hasktorch
+- hasktorch-gradually-typed
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+
+executables:
+  fyb-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-xp
+        #- -with-rtsopts=-N
+    dependencies:
+    - fyb
+    when:
+    - condition: false
+      other-modules: Paths_fyb
+
+tests:
+  fyb-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+      # - -threaded
+      - -rtsopts
+      - -with-rtsopts=-xp
+      # - -with-rtsopts=-N
+    dependencies:
+    - fyb

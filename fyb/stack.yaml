@@ -1,0 +1,44 @@
+resolver: nightly-2022-11-07
+compiler: ghc-9.2.4
+
+packages:
+- .
+
+ghc-options:
+  "$locals": -dynamic -funfolding-use-threshold=16 -fexcess-precision -optc-O3 -optc-ffast-math -O2 -fPIC -fexternal-dynamic-refs # -v
+
+extra-deps:
+  - git: https://github.com/hasktorch/hasktorch.git
+    commit: 7113cde5ac1de66755ada7a1eb4cd2cd0cd25e5f
+    subdirs:
+      - hasktorch
+      - libtorch-ffi
+      - libtorch-ffi-helper
+      - experimental/gradually-typed
+  - git: https://github.com/hasktorch/tokenizers.git
+    commit: 6094e71f5be83dd3bb82627aecfe15c71c42f4f1
+    subdirs:
+      - bindings/haskell/tokenizers-haskell
+  - github: hasktorch/typelevel-rewrite-rules
+    commit: 4176e10d4de2d1310506c0fcf6a74956d81d59b6
+  - type-errors-pretty-0.0.1.2@sha256:9042b64d1ac2f69aa55690576504a2397ebea8a6a55332242c88f54027c7eb57,2781
+  - indexed-extras-0.2@sha256:e7e498023e33016fe45467dfee3c1379862e7e6654a806a965958fa1adc00304,1349
+  - term-rewriting-0.4.0.2@sha256:5412f6aa29c5756634ee30e8df923c83ab9f012a4b8797c460af3d7078466764,2740
+  - union-find-array-0.1.0.3@sha256:242e066ec516d61f262947e5794edc7bbc11fd538a0415c03ac0c01b028cfa8a,1372
+    # - ihaskell-hvega-0.3.2.0@sha256:57b749f3c14b224af6f9484b2cd531299dd740477aa6e6f300f19a8c291b5fac,1182
+    # - KMP-0.2.0.0@sha256:6dfbac03ef00ebd9347234732cb86a40f62ab5a80c0cc6bedb8eb51766f7df28,2562
+    # - command-0.1.1@sha256:5232b98c195bc3b8a6f35c55ccd2fa424abe355ca54cfcd836bbe7e494834773,1110
+    # - hmatrix-csv-0.1.0.2@sha256:687460573413dbb23ba3eeff95e9fac342a2d439db1006846767a095e7f23356,1031
+    # - posix-pty-0.2.2@sha256:dd777df258b3b95fe01612c1204cde972ad1323c3289591ecc844ecb29e55e2b,1826
+    # - normaldistribution-1.1.0.3@sha256:2615b784c4112cbf6ffa0e2b55b76790290a9b9dff18a05d8c89aa374b213477,2160
+    # - typelevel-rewrite-rules-1.0@sha256:ef52c302c56fad2c2da4fe1f59c91d432104383f9772cf28e9ff7d5ad254d4e2,2592
+    # - union-find-array-0.1.0.3@sha256:242e066ec516d61f262947e5794edc7bbc11fd538a0415c03ac0c01b028cfa8a,1372
+    # - parallel-io-0.3.5@sha256:97db32eb84b3141f4957f6d208c0ef8adce647cbf68099417e93c7d9a45f9b35,3482
+
+extra-include-dirs:
+  - libtorch/include/torch/csrc/api/include
+  - libtorch/include
+
+extra-lib-dirs:
+  - ./libtorch/lib
+  - ./libtokenizers
