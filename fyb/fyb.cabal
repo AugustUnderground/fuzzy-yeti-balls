@@ -27,6 +27,7 @@ library
   exposed-modules:
       Data.EFD
       Data.Frame
+      Grd
       Lib
       Torch.Extensions
   other-modules:
@@ -91,7 +92,7 @@ test-suite fyb-test
       Paths_fyb
   hs-source-dirs:
       test
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -rtsopts -with-rtsopts=-xp
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-xp
   build-depends:
       base >=4.7 && <5
     , bytestring

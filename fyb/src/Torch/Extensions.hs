@@ -10,7 +10,12 @@ import qualified Torch                     as T
 import qualified Torch.Functional.Internal as T ( nan_to_num, powScalar', roll
                                                 , linalg_multi_dot, block_diag
                                                 , avg_pool2d, sort, where'
-                                                , angle )
+                                                , angle, gtScalar )
+
+import qualified Torch.Internal.Managed.Native.Native8 as ATen
+import qualified Torch.Internal.Cast as T (cast2)
+
+import System.IO.Unsafe (unsafePerformIO)
 
 -- | Type alias for Padding Kernel
 type Kernel  = (Int, Int)
@@ -36,6 +41,48 @@ empty = T.asTensor ([] :: [Float])
 -- | The inverse of `log10`
 pow10 :: T.Tensor -> T.Tensor
 pow10 = T.powScalar' 10.0
+
+-- | The inverse of `log10`
+pow2 :: T.Tensor -> T.Tensor
+pow2 = T.powScalar' 2.0
+
+{-# NOINLINE bitwiseAnd #-}
+-- | Bitwise AND
+bitwiseAnd :: T.Tensor -> T.Tensor -> T.Tensor
+bitwiseAnd t1 t2 = unsafePerformIO $ T.cast2 ATen.bitwise_and_tt t1 t2
+
+-- | Convert Int Tensor to Boolean Bit-Mask of size n
+asBits :: Int -> T.Tensor -> T.Tensor
+asBits n t = T.gtScalar (bitwiseAnd t' m') 0
+  where
+    t' = T.unsqueeze (T.Dim (-1)) t
+    m' = T.toDType T.Int64 . pow2 $ T.arange' 0 n 1
+
+-- | Convert Int Tensor to Boolean Bit-Mask of size n (reversed bit order)
+asBits' :: Int -> T.Tensor -> T.Tensor
+asBits' n t = T.ne 0.0 $ bitwiseAnd (T.unsqueeze (T.Dim (-1)) t) m
+  where
+    m = T.toDType T.Int64 . pow2 $ T.arange' (n - 1) (-1) (-1)
+
+-- | Convert Bit Mask to Int vector
+fromBits :: T.Tensor -> T.Tensor
+fromBits t = T.sumDim (T.Dim 1) T.RemoveDim T.Int64 
+           . T.mul m $ T.toDType T.Int64 t
+  where
+    n = T.shape t !! 1
+    m = T.toDType T.Int64 . pow2 $ T.arange' 0 n 1
+
+-- | Convert Bit Mask to Int vector (reversed bit order)
+fromBits' :: T.Tensor -> T.Tensor
+fromBits' t = T.sumDim (T.Dim 1) T.RemoveDim T.Int64
+            . T.mul m $ T.toDType T.Int64 t
+  where
+    n = T.shape t !! 1
+    m = T.toDType T.Int64 . pow2 $ T.arange' (n - 1) (-1) (-1)
+
+-- | Reverse of oneHot. Turns one hot vector into int
+oneHot' :: T.Tensor -> T.Tensor
+oneHot' = T.select 1 1 . T.nonzero
 
 -- | 20 * log |x|
 db20 :: T.Tensor -> T.Tensor

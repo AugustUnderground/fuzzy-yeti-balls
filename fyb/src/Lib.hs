@@ -25,16 +25,21 @@ data NetSpec = NetSpec { numX   :: Int       -- ^ Number of input neurons
 -- | Network Architecture
 data Net = Net { fc0 :: T.Linear
                , fc1 :: T.Linear
+               , fc2 :: T.Linear
                } deriving (Generic, Show, T.Parameterized)
 
 -- | Neural Network Weight initialization
 instance T.Randomizable NetSpec Net where
     sample NetSpec{..} = Net <$> T.sample (T.LinearSpec   numX 64)
-                             <*> T.sample (T.LinearSpec   64   numY)
+                             <*> T.sample (T.LinearSpec   64  128)
+                             <*> T.sample (T.LinearSpec   128  numY)
 
 -- | Neural Network Forward Pass with scaled Data
 forward :: Net -> T.Tensor -> T.Tensor
-forward Net{..} = T.sigmoid . T.linear fc1 . T.sigmoid . T.linear fc0 
+forward Net{..} = T.logSoftmax (T.Dim 1) 
+                . T.linear fc2 . T.relu 
+                . T.linear fc1 . T.relu 
+                . T.linear fc0
 
 -- | Remove Gradient for tracing / scripting
 noGrad :: (NN.Parameterized f) => f -> IO f
@@ -83,8 +88,8 @@ trainStep trueX trueY net opt = do
     pure (net', opt', loss)
   where
     predY = forward net trueX
-    loss  = T.binaryCrossEntropyLoss' trueY predY
-    alpha = 1.0e-2
+    loss  = T.nllLoss' trueY predY
+    alpha = 1.0e-3
 
 -- | Run through all Batches performing an update for each
 trainingEpoch :: [T.Tensor]  -> [T.Tensor] -> [T.Tensor] -> Net -> T.Adam 
@@ -105,7 +110,7 @@ validStep :: T.Tensor -> T.Tensor -> Net -> IO T.Tensor
 validStep trueX trueY net = T.detach loss
   where
     predY = forward net trueX
-    loss  = T.binaryCrossEntropyLoss' trueY predY
+    loss  = T.nllLoss' trueY predY
 
 -- | Run through all Batches performing an update for each
 validationEpoch :: [T.Tensor] -> [T.Tensor] -> Net -> [T.Tensor] -> IO T.Tensor
@@ -123,7 +128,7 @@ runEpochs path 0     _       _       _       _       net opt = do
     saveCheckPoint path net opt
     pure (net, opt)
 runEpochs path epoch trainXs validXs trainYs validYs net opt = do
-
+    putStrLn $ "Epoch " ++ show epoch ++ ":"
     (net', opt', mse) <- trainingEpoch trainXs trainYs [] net opt
     putStrLn $ "\tTraining Loss: " ++ show (T.mean mse)
 
@@ -137,6 +142,7 @@ runEpochs path epoch trainXs validXs trainYs validYs net opt = do
 
 saveModel :: FilePath -> Int -> (T.Tensor -> T.Tensor) -> IO ()
 saveModel path num mdl = do
+    data' <- (:[]) <$> T.randIO' [10, num]
     rm <- T.trace name "forward" fun data' 
     T.setRuntimeMode rm T.Eval
     sm <- T.toScriptModule rm
@@ -144,7 +150,7 @@ saveModel path num mdl = do
   where
     fun       = mapM (pure . mdl)
     name      = "fyb"
-    data'     = [T.ones' [1, num]]
+    -- data'     = [T.ones' [1, num]]
 
 loadModel :: FilePath -> IO (T.Tensor -> T.Tensor)
 loadModel path = do
@@ -167,41 +173,45 @@ train = do
     let opt  =  T.mkAdam 0 0.9 0.999 $ NN.flattenParameters net
 
     !df  <- DF.shuffleIO . DF.dropNan $ DF.union dfX dfY
-    let (!trainX', !validX', !trainY', !validY') = 
-                DF.trainTestSplit xKeys yKeys ratio df
+    let (!trainX', !validX', !trainY', !validY') 
+               = DF.trainTestSplit xKeys yKeys ratio df
 
     let trainX = T.split batchSize (T.Dim 0) . T.toDevice T.gpu $ trainX'
-        trainY = T.split batchSize (T.Dim 0) . T.toDevice T.gpu $ trainY'
+        trainY = T.split batchSize (T.Dim 0) . T.toDevice T.gpu . T.fromBits
+                                             . T.toDType T.Int64 $ trainY'
         validX = T.split batchSize (T.Dim 0) . T.toDevice T.gpu $ validX'
-        validY = T.split batchSize (T.Dim 0) . T.toDevice T.gpu $ validY'
+        validY = T.split batchSize (T.Dim 0) . T.toDevice T.gpu . T.fromBits
+                                             . T.toDType T.Int64 $ validY'
 
     (net', opt') <- runEpochs modelPath numEpochs trainX validX trainY validY net opt
 
     saveCheckPoint modelPath net' opt'
 
     !net'' <- T.toDevice T.cpu <$> noGrad net'
+
+    let predict = T.asBits n . snd . T.maxDim (T.Dim 1) T.RemoveDim 
+                . forward net'' . T.scale minX maxX
     
-    pure (forward net'' . T.scale minX maxX)
+    pure predict
   where
     xKeys      = ["Ia", "Ib", "Ic", "Va", "Vb", "Vc"]
     yKeys      = ["G", "C", "B", "A"]
     numInputs  = length xKeys
-    numOutputs = length yKeys
-    -- expt       = T.asTensor @[[Float]] [[ 2 ** e | e <- [ 0 .. 3 ] ]]
+    n          = length yKeys
+    numOutputs = 2 ^ n
     ratio      = 0.7
     path       = "../data/classData.csv"
     modelPath  = "../models"
-    batchSize  = 8
+    batchSize  = 4
     numEpochs  = 100
 
 test :: (T.Tensor -> T.Tensor) -> IO ()
 test mdl = do
     df  <- DF.fromCsv dataPath >>= DF.sampleIO numSamples False
 
-    let x = DF.lookup xKeys df
-        y = DF.lookup yKeys df
+    let x  = DF.lookup xKeys df
+        y  = T.toDType T.Bool <$> DF.lookup yKeys df
         y' = DF.DataFrame yKeys . mdl $ DF.values x
-    
     print x
     print y
     print y'
@@ -211,4 +221,5 @@ test mdl = do
     numSamples = 10
     xKeys      = ["Ia", "Ib", "Ic", "Va", "Vb", "Vc"]
     yKeys      = ["G", "C", "B", "A"]
+    n          = length yKeys
     dataPath   = "../data/classData.csv"
