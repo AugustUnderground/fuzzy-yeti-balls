@@ -9,7 +9,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 -- | Neural Network Definition and Training
-module Lib where
+module Ftd where
 
 import           GHC.Generics
 import qualified Torch            as T
@@ -51,14 +51,14 @@ noGrad net = do
 -- | Save Model and Optimizer Checkpoint
 saveCheckPoint :: FilePath -> Net -> T.Adam -> IO ()
 saveCheckPoint path net opt = do
-    T.saveParams net  (path ++ "/model.pt")
+    T.saveParams net  (path ++ "/ftd-cp.pt")
     T.save (T.m1 opt) (path ++ "/M1.pt")
     T.save (T.m2 opt) (path ++ "/M2.pt")
 
 -- | Load a Saved Model and Optimizer CheckPoint
 loadCheckPoint :: FilePath -> NetSpec -> Int -> IO (Net, T.Adam)
 loadCheckPoint path spec iter = do
-    net <- T.sample spec >>= (`T.loadParams` (path ++ "/model.pt"))
+    net <- T.sample spec >>= (`T.loadParams` (path ++ "/ftd-cp.pt"))
     m1' <- T.load (path ++ "/M1.pt")
     m2' <- T.load (path ++ "/M2.pt")
     let opt = T.Adam 0.9 0.999 m1' m2' iter
@@ -140,16 +140,16 @@ runEpochs path epoch trainXs validXs trainYs validYs net opt = do
   where
     epoch' = epoch - 1
 
-saveModel :: FilePath -> Int -> (T.Tensor -> T.Tensor) -> IO ()
-saveModel path num mdl = do
+saveTrace :: FilePath -> Int -> (T.Tensor -> T.Tensor) -> IO ()
+saveTrace path num mdl = do
     data' <- (:[]) <$> T.randIO' [10, num]
     rm <- T.trace name "forward" fun data' 
     T.setRuntimeMode rm T.Eval
-    sm <- T.toScriptModule rm
-    T.saveScript sm path
+    T.toScriptModule rm >>= flip T.saveScript scriptPath
   where
-    fun       = mapM (pure . mdl)
-    name      = "fyb"
+    fun        = mapM (pure . mdl)
+    name       = "fyb"
+    scriptPath = path ++ "/ftd-trace.pt"
     -- data'     = [T.ones' [1, num]]
 
 loadModel :: FilePath -> IO (T.Tensor -> T.Tensor)
@@ -187,7 +187,8 @@ train = do
 
     saveCheckPoint modelPath net' opt'
 
-    !net'' <- T.toDevice T.cpu <$> noGrad net'
+    !net''       <- loadCheckPoint modelPath (NetSpec numInputs numOutputs) numEpochs
+                        >>= noGrad . T.toDevice T.cpu . fst
 
     let predict = T.asBits n . snd . T.maxDim (T.Dim 1) T.RemoveDim 
                 . forward net'' . T.scale minX maxX
@@ -203,15 +204,15 @@ train = do
     path       = "../data/classData.csv"
     modelPath  = "../models"
     batchSize  = 4
-    numEpochs  = 100
+    numEpochs  = 24
 
 test :: (T.Tensor -> T.Tensor) -> IO ()
 test mdl = do
     df  <- DF.fromCsv dataPath >>= DF.sampleIO numSamples False
 
     let x  = DF.lookup xKeys df
-        y  = T.toDType T.Bool <$> DF.lookup yKeys df
-        y' = DF.DataFrame yKeys . mdl $ DF.values x
+        y  = DF.lookup yKeys df
+        y' = mdl $ DF.values x
     print x
     print y
     print y'
@@ -221,5 +222,4 @@ test mdl = do
     numSamples = 10
     xKeys      = ["Ia", "Ib", "Ic", "Va", "Vb", "Vc"]
     yKeys      = ["G", "C", "B", "A"]
-    n          = length yKeys
     dataPath   = "../data/classData.csv"

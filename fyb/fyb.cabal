@@ -27,9 +27,10 @@ library
   exposed-modules:
       Data.EFD
       Data.Frame
+      Ftd
       Grd
-      Lib
       Torch.Extensions
+      Wkg
   other-modules:
       Paths_fyb
   hs-source-dirs:

@@ -2,14 +2,17 @@
 
 module Main (main) where
 
-import           Lib
+import qualified Ftd
+import qualified Wkg
 
 main :: IO ()
 main = do
     putStrLn "Fuzzy Yeti Balls"
-    train >>= saveModel modelPath numInputs
-    loadModel modelPath >>= test
+    Ftd.train >>= Ftd.saveTrace modelPath numInputs
+    Ftd.loadModel tracePath >>= Ftd.test
     putStrLn "Fuzzy Yeti Balls"
   where
     numInputs  = 6
-    modelPath  = "../models/trace.pt"
+    modelPath  = "../models"
+    tracePath  = modelPath ++ "/ftd-trace.pt"
+    -- tracePath  = modelPath ++ "/wkg-trace.pt"

@@ -227,6 +227,13 @@ mapeLoss x y = T.clamp 0.0 100.0 . T.mul 100.0 . T.abs
              . T.meanDim (T.Dim 0) T.RemoveDim T.Float 
              . flip T.div y . T.abs $ (x - y)
 
+-- | Minimum between two tensors of same shape
+min' :: T.Tensor -> T.Tensor -> T.Tensor
+min' a b = fst . T.minDim (T.Dim (-1)) T.RemoveDim $ T.stack (T.Dim (-1)) [a, b]
+
+-- | Maximum between two tensors of same shape
+max' :: T.Tensor -> T.Tensor -> T.Tensor
+max' a b = fst . T.maxDim (T.Dim (-1)) T.RemoveDim $ T.stack (T.Dim (-1)) [a, b]
 
 -- | Create a boolean mask from a subset of column names
 boolMask :: [String] -> [String] -> [Bool]
