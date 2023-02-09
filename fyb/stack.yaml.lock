@@ -5,33 +5,33 @@
 
 packages:
 - completed:
-    commit: 7113cde5ac1de66755ada7a1eb4cd2cd0cd25e5f
+    commit: d77e48c6ab7b356c0ad480f00b9092cb49f5a37f
     git: https://github.com/hasktorch/hasktorch.git
     name: hasktorch
     pantry-tree:
-      sha256: c8a83a8db3a035c9c652d43c6067ac45aaf9e08cce49738a9365e86f9d1c3584
-      size: 8479
+      sha256: 2d0c3592e002abd2ec7282d0fa79f45dcaa94f962c5674590a303d927718fece
+      size: 8242
     subdir: hasktorch
     version: 0.2.0.0
   original:
-    commit: 7113cde5ac1de66755ada7a1eb4cd2cd0cd25e5f
+    commit: d77e48c6ab7b356c0ad480f00b9092cb49f5a37f
     git: https://github.com/hasktorch/hasktorch.git
     subdir: hasktorch
 - completed:
-    commit: 7113cde5ac1de66755ada7a1eb4cd2cd0cd25e5f
+    commit: d77e48c6ab7b356c0ad480f00b9092cb49f5a37f
     git: https://github.com/hasktorch/hasktorch.git
     name: libtorch-ffi
     pantry-tree:
-      sha256: 06b0aef7dd5e2e174aa7de8dc6f648fe1fd23854b2bf31a0e32cac43c3795141
+      sha256: 46f93c6a6429e561b053740e096f6039b8766dbfc5562c5fad8a87715441cc5b
       size: 9504
     subdir: libtorch-ffi
     version: 1.11.0.0
   original:
-    commit: 7113cde5ac1de66755ada7a1eb4cd2cd0cd25e5f
+    commit: d77e48c6ab7b356c0ad480f00b9092cb49f5a37f
     git: https://github.com/hasktorch/hasktorch.git
     subdir: libtorch-ffi
 - completed:
-    commit: 7113cde5ac1de66755ada7a1eb4cd2cd0cd25e5f
+    commit: d77e48c6ab7b356c0ad480f00b9092cb49f5a37f
     git: https://github.com/hasktorch/hasktorch.git
     name: libtorch-ffi-helper
     pantry-tree:
@@ -40,20 +40,20 @@ packages:
     subdir: libtorch-ffi-helper
     version: 1.11.0.0
   original:
-    commit: 7113cde5ac1de66755ada7a1eb4cd2cd0cd25e5f
+    commit: d77e48c6ab7b356c0ad480f00b9092cb49f5a37f
     git: https://github.com/hasktorch/hasktorch.git
     subdir: libtorch-ffi-helper
 - completed:
-    commit: 7113cde5ac1de66755ada7a1eb4cd2cd0cd25e5f
+    commit: d77e48c6ab7b356c0ad480f00b9092cb49f5a37f
     git: https://github.com/hasktorch/hasktorch.git
     name: hasktorch-gradually-typed
     pantry-tree:
-      sha256: 57ff2928e194df3f678c96c5abb44c72f5e9ab34eaf88c4503d6c6e2170cef6a
-      size: 11033
+      sha256: 76d949832a2d21ea8f2201ad625eec0288d6305124355eb052e8e56ecca3c6ab
+      size: 11032
     subdir: experimental/gradually-typed
     version: 0.2.0.0
   original:
-    commit: 7113cde5ac1de66755ada7a1eb4cd2cd0cd25e5f
+    commit: d77e48c6ab7b356c0ad480f00b9092cb49f5a37f
     git: https://github.com/hasktorch/hasktorch.git
     subdir: experimental/gradually-typed
 - completed:
@@ -108,9 +108,30 @@ packages:
       size: 482
   original:
     hackage: union-find-array-0.1.0.3@sha256:242e066ec516d61f262947e5794edc7bbc11fd538a0415c03ac0c01b028cfa8a,1372
+- completed:
+    hackage: moo-1.2@sha256:0c4be1a01548db785dcbbe6b8c98579dbf03c5b3b536e0420dce3ba6a61337cb,5951
+    pantry-tree:
+      sha256: a32c48fefc42e1f7775c868794a91604522a59a1c0d2b2accff12197329f2d17
+      size: 2861
+  original:
+    hackage: moo-1.2@sha256:0c4be1a01548db785dcbbe6b8c98579dbf03c5b3b536e0420dce3ba6a61337cb,5951
+- completed:
+    hackage: gray-code-0.3.1@sha256:2c8a4ed9c9ee37320305610604d6d93504e0813d7c9768949af418b53043185a,2388
+    pantry-tree:
+      sha256: 7b133d19b93231ea84b286cfe1a2038d67f9b553826845b33fad6526464e1de7
+      size: 506
+  original:
+    hackage: gray-code-0.3.1@sha256:2c8a4ed9c9ee37320305610604d6d93504e0813d7c9768949af418b53043185a,2388
+- completed:
+    hackage: normaldistribution-1.1.0.3@sha256:2615b784c4112cbf6ffa0e2b55b76790290a9b9dff18a05d8c89aa374b213477,2160
+    pantry-tree:
+      sha256: 856818862d12df8b030fa9cfef2c4ffa604d06f0eb057498db245dfffcd60e3c
+      size: 269
+  original:
+    hackage: normaldistribution-1.1.0.3@sha256:2615b784c4112cbf6ffa0e2b55b76790290a9b9dff18a05d8c89aa374b213477,2160
 snapshots:
 - completed:
-    sha256: 3419f38f5c1709962464f15decb6d0052c9285251f5768be251342fee4ff8972
-    size: 647779
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/11/7.yaml
-  original: nightly-2022-11-07
+    sha256: 428ec8d5ce932190d3cbe266b9eb3c175cd81e984babf876b64019e2cbe4ea68
+    size: 590100
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/28.yaml
+  original: lts-18.28

@@ -36,9 +36,12 @@ dependencies:
 - mtl
 - pipes
 - pipes-concurrency
+- moo
 - libtorch-ffi
 - hasktorch
 - hasktorch-gradually-typed
+- text
+- hvega
 
 ghc-options:
 - -Wall

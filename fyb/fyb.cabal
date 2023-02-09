@@ -28,7 +28,8 @@ library
       Data.EFD
       Data.Frame
       Ftd
-      Grd
+      Graphics.Vega.VegaLite.Simple
+      Mop
       Torch.Extensions
       Wkg
   other-modules:
@@ -45,8 +46,10 @@ library
     , directory
     , hasktorch
     , hasktorch-gradually-typed
+    , hvega
     , lens
     , libtorch-ffi
+    , moo
     , mtl
     , normaldistribution
     , pipes
@@ -73,8 +76,10 @@ executable fyb-exe
     , fyb
     , hasktorch
     , hasktorch-gradually-typed
+    , hvega
     , lens
     , libtorch-ffi
+    , moo
     , mtl
     , normaldistribution
     , pipes
@@ -104,8 +109,10 @@ test-suite fyb-test
     , fyb
     , hasktorch
     , hasktorch-gradually-typed
+    , hvega
     , lens
     , libtorch-ffi
+    , moo
     , mtl
     , normaldistribution
     , pipes
